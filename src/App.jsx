@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react";
 
-// ─────────────────────────────────────────────
-//  🔧 CONFIGURATION — fill these in!
-//  1. Go to https://supabase.com and create a free project
-//  2. Settings → API → copy Project URL and anon key
-// ─────────────────────────────────────────────
-const SUPABASE_URL = "https://htinjdvtessheedxqlfu.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0aW5qZHZ0ZXNzaGVlZHhxbGZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjQ1NjgsImV4cCI6MjA5MDgwMDU2OH0.YSVuEAC_Anvgf9toVjS2jviYV_NptBtLx6XkYm2hYM0";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const TABLE = "Menu_Items";
 
 async function supabaseRequest(method, body, id) {
@@ -29,7 +24,8 @@ async function supabaseRequest(method, body, id) {
     const err = await res.text();
     throw new Error(err);
   }
-  return method === "DELETE" ? null : res.json();
+  if (method === "DELETE" || method === "PATCH") return null;
+  return res.json();
 }
 
 const CATEGORIES = ["Appetizer", "Main Course", "Dessert", "Drink", "Side", "Special"];
@@ -39,13 +35,12 @@ export default function MenuItemsApp() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [modal, setModal] = useState(null); // null | { mode: 'add'|'edit', id? }
+  const [modal, setModal] = useState(null); 
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [filterCategory, setFilterCategory] = useState("All");
 
-  // ── Fetch ─────────────────────────────────
   const fetchItems = async () => {
     setLoading(true);
     setError(null);
@@ -61,18 +56,15 @@ export default function MenuItemsApp() {
 
   useEffect(() => { fetchItems(); }, []);
 
-  // ── Derived data ──────────────────────────
   const categories = ["All", ...new Set(items.map((i) => i.Category).filter(Boolean))];
   const filtered = filterCategory === "All" ? items : items.filter((i) => i.Category === filterCategory);
 
-  // ── Modal helpers ─────────────────────────
   const openAdd = () => { setForm(EMPTY); setModal({ mode: "add" }); };
   const openEdit = (item) => {
     setForm({ Dish_Name: item.Dish_Name ?? "", Category: item.Category ?? "", Price: item.Price ?? "" });
     setModal({ mode: "edit", id: item.MenuItem_ID });
   };
 
-  // ── Save ──────────────────────────────────
   const handleSave = async () => {
     if (!form.Dish_Name.trim()) { setError("Dish name is required."); return; }
     setSaving(true);
@@ -93,7 +85,6 @@ export default function MenuItemsApp() {
     }
   };
 
-  // ── Delete ────────────────────────────────
   const handleDelete = async (id) => {
     setError(null);
     try {
@@ -109,11 +100,10 @@ export default function MenuItemsApp() {
 
   return (
     <div style={s.page}>
-      {/* ── Header ── */}
       <header style={s.header}>
         <div style={s.headerInner}>
           <div>
-            <div style={s.eyebrow}>RESTAURANT OS</div>
+            <div style={s.eyebrow}>Maison de Lune</div>
             <h1 style={s.title}>Menu Items</h1>
           </div>
           <button style={s.btnPrimary} onClick={openAdd}>+ Add Dish</button>
@@ -123,7 +113,6 @@ export default function MenuItemsApp() {
       <main style={s.main}>
         {error && <div style={s.errorBanner}><strong>Error:</strong> {error}</div>}
 
-        {/* ── Stats ── */}
         <div style={s.statsRow}>
           {[
             { label: "Total Dishes", value: items.length },
@@ -245,7 +234,6 @@ export default function MenuItemsApp() {
         </div>
       )}
 
-      {/* ── Delete Confirm ── */}
       {deleteId && (
         <div style={s.overlay} onClick={() => setDeleteId(null)}>
           <div style={{ ...s.modal, maxWidth: 380 }} onClick={(e) => e.stopPropagation()}>
@@ -264,25 +252,23 @@ export default function MenuItemsApp() {
   );
 }
 
-// ── Category badge colors ──────────────────────
 function categoryColor(cat) {
   const map = {
     Appetizer: "#fff3cd",
-    "Main Course": "#d4edda",
-    Dessert: "#f8d7da",
-    Drink: "#d1ecf1",
-    Side: "#e2e3e5",
-    Special: "#fde8d8",
+    "Main Course": "#d4ede9",
+    Dessert: "#f6d7b7",
+    Drink: "#d1ddf1",
+    Side: "#f1f5b6",
+    Special: "#d8fdda",
   };
   return map[cat] || "#f0f0ea";
 }
 
-// ── Styles ─────────────────────────────────────
 const styles = {
   page: { minHeight: "100vh", background: "#f5f4ef", fontFamily: "'Georgia', serif" },
-  header: { background: "#1a1a1a", borderBottom: "4px solid #c8590a" },
+  header: { background: "#232324", borderBottom: "4px solid #394ffa" },
   headerInner: { maxWidth: 1100, margin: "0 auto", padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" },
-  eyebrow: { color: "#c8590a", fontSize: 11, fontFamily: "monospace", letterSpacing: 3, textTransform: "uppercase", marginBottom: 4 },
+  eyebrow: { color: "#394ffa", fontSize: 13, fontFamily: "monospace", letterSpacing: 3, textTransform: "uppercase", marginBottom: 4 },
   title: { color: "#fff", fontSize: 32, margin: 0, fontWeight: 400, letterSpacing: -1 },
   main: { maxWidth: 1100, margin: "0 auto", padding: "32px 24px" },
   errorBanner: { background: "#fdecea", border: "1px solid #f5c6cb", color: "#c0392b", padding: "12px 16px", borderRadius: 8, marginBottom: 20, fontSize: 14 },
@@ -301,7 +287,7 @@ const styles = {
   badge: { display: "inline-block", padding: "3px 10px", borderRadius: 12, fontSize: 12, fontFamily: "monospace" },
   actionRow: { display: "flex", gap: 8 },
   center: { padding: 48, textAlign: "center", color: "#888", fontSize: 16 },
-  btnPrimary: { background: "#c8590a", color: "#fff", border: "none", padding: "11px 22px", borderRadius: 8, fontFamily: "Georgia, serif", fontSize: 15, cursor: "pointer", fontWeight: 600 },
+  btnPrimary: { background: "#4b86e6", color: "#181818", border: "none", padding: "11px 22px", borderRadius: 8, fontFamily: "Georgia, serif", fontSize: 15, cursor: "pointer", fontWeight: 600 },
   btnSecondary: { background: "#fff", color: "#333", border: "1px solid #ccc", padding: "11px 22px", borderRadius: 8, fontFamily: "Georgia, serif", fontSize: 15, cursor: "pointer" },
   btnEdit: { background: "#f0f0ea", color: "#333", border: "1px solid #ddd", padding: "6px 14px", borderRadius: 6, fontSize: 13, cursor: "pointer", fontFamily: "Georgia, serif" },
   btnDelete: { background: "#fdecea", color: "#c0392b", border: "1px solid #f5c6cb", padding: "6px 14px", borderRadius: 6, fontSize: 13, cursor: "pointer", fontFamily: "Georgia, serif" },
