@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const SUPABASE_URL = "https://htinjdvtessheedxqlfu.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0aW5qZHZ0ZXNzaGVlZHhxbGZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjQ1NjgsImV4cCI6MjA5MDgwMDU2OH0.YSVuEAC_Anvgf9toVjS2jviYV_NptBtLx6XkYm2hYM0";
 const TABLE = "Menu_Items";
 
 async function supabaseRequest(method, body, id) {
