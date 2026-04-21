@@ -105,9 +105,6 @@ const TABLES = [
   },
 ];
 
-// ─────────────────────────────────────────────
-//  REPORT DEFINITIONS (read-only views)
-// ─────────────────────────────────────────────
 const REPORTS = [
   {
     key:   "Order_Summary",
@@ -144,7 +141,6 @@ function formatCell(key, val) {
   if (isCurrency(key)) return `$${Number(val).toFixed(2)}`;
   return val;
 }
-
 
 function ReportView({ report }) {
   const [rows, setRows]       = useState([]);
@@ -196,6 +192,7 @@ function ReportView({ report }) {
     </div>
   );
 }
+
 
 function TableView({ tableDef }) {
   const { key, pk, fields, label } = tableDef;
@@ -363,6 +360,7 @@ function TableView({ tableDef }) {
     </div>
   );
 }
+
 
 export default function App() {
   const [activeKey,     setActiveKey]     = useState("Menu_Items");
